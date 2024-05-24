@@ -1,37 +1,79 @@
-import pygame as pg 
-import numpy as np
+import pygame
+import sys
+
+# Constants
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+WIDTH, HEIGHT = 1440, 720
+CELL_SIZE = 10
+ROWS = HEIGHT // CELL_SIZE
+COLS = WIDTH // CELL_SIZE
+FPS = 60
 
 # Initialize Pygame
-pg.init()
+pygame.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+clock = pygame.time.Clock()
+pygame.display.set_caption('Langton\'s Ant')
 
-#WINDOW SETUP
-DIMESIONS = WIDTH, HEIGHT = 1440, 720
-screen = pg.display.set_mode(DIMESIONS)
-pg.display.set_caption("Langston's Ant")
+# Grid initialization
+grid = [[WHITE for _ in range(COLS)] for _ in range(ROWS)]
 
-YELLOW = (255,255, 135)
-WHITE = (255, 255, 255)
-pg.draw.rect(screen, YELLOW, (1440, 720, 5,5))
-def Main():
-    clock = pg.time.Clock()
+# Ant class
+class Ant:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.direction = 0  # 0: up, 1: right, 2: down, 3: left
+        self.steps = 0
 
-    fwd = 100
-    lft = 100
-    running = True
-    while running:
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                running=False
+    def move(self):
+        # Turn and flip color
+        if grid[self.y][self.x] == WHITE:
+            self.direction = (self.direction + 1) % 4
+            grid[self.y][self.x] = BLACK
+        else:
+            self.direction = (self.direction - 1) % 4
+            grid[self.y][self.x] = WHITE
 
-        pg.draw.rect(screen, YELLOW, (fwd, lft, 5, 5))
-              
+        # Move forward
+        if self.direction == 0:
+            self.y = (self.y - 1) % ROWS
+        elif self.direction == 1:
+            self.x = (self.x + 1) % COLS
+        elif self.direction == 2:
+            self.y = (self.y + 1) % ROWS
+        elif self.direction == 3:
+            self.x = (self.x - 1) % COLS
 
+        # Increment step count
+        self.steps += 1
 
-        pg.display.flip()
-        clock.tick(30)  # Set FPS
+        # Update window caption
+        pygame.display.set_caption(f'Langton\'s Ant - Steps: {self.steps}')
 
-    pg.quit()
+# Initialize ant
+ant = Ant(COLS // 2, ROWS // 2)
 
+# Main loop
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
 
-if __name__ == "__main__":
-    Main()
+    # Move ant
+    ant.move()
+
+    # Draw grid
+    for y in range(ROWS):
+        for x in range(COLS):
+            color = grid[y][x]
+            pygame.draw.rect(screen, color, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+
+    # Update display
+    pygame.display.flip()
+    clock.tick(FPS)
+
+pygame.quit()
+sys.exit()
