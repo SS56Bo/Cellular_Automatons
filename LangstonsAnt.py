@@ -24,9 +24,7 @@ def Main():
                 running=False
 
         pg.draw.rect(screen, YELLOW, (fwd, lft, 5, 5))
-        pg.draw.rect(screen, WHITE, (fwd, lft, 5, 5))
-        fwd=fwd+1
-        lft=lft+1
+              
 
 
         pg.display.flip()
